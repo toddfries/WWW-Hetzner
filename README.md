@@ -16,7 +16,7 @@ For now, $HOME/.hcli.conf should contain:
 	hpass = password
 ```
 
-for the api user you've setup at hetzner's [robot](https://robot.your-server.de/) web interface.
+for the api user you've setup at hetzner's [robot](https://accounts.hetzner.com/login) web interface.
 
 This was originally part of [hetznercli](https://github.com/toddfries/hetznercli), but
 that project is about the cli app, and this project is about the API.  I exercise this
