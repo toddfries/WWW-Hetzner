@@ -21,7 +21,8 @@ use Moose::Util::TypeConstraints;
 use WWW::Hetzner;
 
 has 'hetzner' => (is => 'rw', isa => 'WWW::Hetzner', required => 1);
-has 'ip' => (is => 'rw', isa => 'Str', required => 1);
+has 'ip' => (is => 'rw', isa => 'Str', required => 0);
+has 'server' => (is => 'rw', isa => 'Defined', required => 1);
 
 around 'new' => sub {
 	my $orig = shift;

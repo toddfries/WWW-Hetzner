@@ -30,7 +30,7 @@ sub init {
 sub refreshcall {
 	my ($me) = @_;
 
-	$me->{call} = "traffic?ip=".$me->{ip}."&type=month&from=".$me->{start}."&to=".$me->{stop};
+	$me->{call} = "traffic?ip[]=".$me->{ip}."&type=month&from=".$me->{start}."&to=".$me->{stop};
 }
 
 sub ios {

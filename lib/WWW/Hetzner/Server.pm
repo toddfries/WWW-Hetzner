@@ -28,13 +28,16 @@ use POSIX qw(strftime);
 sub init {
 	my ($me) = @_;
 	my $ip = $me->ip;
+	my $sno = $me->server->{server_number};
 	$me->{setoverrides}->{ip} = sub {
 		my ($me) = @_;
 		my $ip = $me->ip;
-		my $lip = WWW::Hetzner::IP->new({hetzner => $me->hetzner,
-			ip => $ip,
-		});
-		$me->{v}->{ip} = $lip;
+		if (defined($ip)) {
+			my $lip = WWW::Hetzner::IP->new({hetzner => $me->hetzner,
+				ip => $ip,
+			});
+			$me->{v}->{ip} = $lip;
+		}
 	};
 	$me->{setoverrides}->{_trafficbw} = sub {
 		my ($me, $ip) = @_;
@@ -93,7 +96,7 @@ sub init {
 		);
 		$me->{_cancel} = $cancel;
 	};
-	$me->{call} = "server/$ip";
+	$me->{call} = "server/$sno";
 	$me->{dname} = "server";
 	$me->refresh;
 }
@@ -121,7 +124,7 @@ sub traffic {
 	$mdays{'11'}=31;
 	$mdays{'12'}=31;
 	my $stop = strftime("%Y-%m-".$mdays{$mno}, localtime(time()));
-	#print "traffic passing start=$start stop=$stop\n";
+	print "traffic passing start=$start stop=$stop\n";
 	return $me->{_trafficbw}->ios($start, $stop);
 }
 

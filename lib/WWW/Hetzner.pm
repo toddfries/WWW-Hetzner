@@ -14,6 +14,8 @@
 
 package WWW::Hetzner;
 
+use Data::Dumper;
+
 use Moose; # turns on strict/warnings
 
 use MooseX::Params::Validate;
@@ -32,14 +34,23 @@ sub setup_ua_creds {
 	my ($me) = @_;
 
 	$me->urlbase('https://robot-ws.your-server.de/');
-	$me->json_name('robot-ws');
+
+	if (0) {
+	$me->json_name('sb'); # XXX what does this do?
+
+	my $realm = $me->json_name;
+	print "creds realm: $realm\n";
+	$realm = "";
 
 	$me->{ua}->credentials(
 		"robot-ws.your-server.de:443",
-		$me->json_name,
+		$realm,
 		$me->huser,
 		$me->hpass,
 	);
+	} else {
+		$me->{ua}->default_headers->authorization_basic($me->huser, $me->hpass);
+	}
 }
 
 sub parse_json {
@@ -55,6 +66,7 @@ sub parse_json {
 	}
 	if (length($str) < 1) {
 		printf "%s has empty str\n", $name;
+		print "res: ".Dumper($res);
 		return undef;
 	}
 	if (!defined($me->{json})) {
@@ -79,11 +91,26 @@ sub servers {
 	my ($me) = @_;
 
 	my $parsed = $me->get("server");
+	if (ref($parsed) eq "HASH") {
+		if (defined($parsed->{error})) {
+			printf "->get(server): %3d code:%s message:%s\n",
+				$parsed->{error}->{status},
+				$parsed->{error}->{code},
+				$parsed->{error}->{message};
+			return;
+		}
+	}
+
+	if (!defined($parsed)) {
+		print "servers parsed: <undef>\n";
+		return;
+	}
+	#print "servers parsed: ".Dumper($parsed)."\n";
 	my @servers;
 	foreach my $s (@{$parsed}) {
 		push @servers, WWW::Hetzner::Server->new(
 			hetzner => $me,
-			ip => $s->{server}->{server_ip},
+			server => $s->{server}
 		);
 	}
 	return @servers;
