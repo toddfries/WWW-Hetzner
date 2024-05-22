@@ -20,8 +20,7 @@ extends 'WWW::Hetzner::API';
 
 sub init {
 	my ($me) = @_;
-	my $ip = $me->ip;
-	$me->{call} = "rdns/${ip}";
+	$me->{call} = "rdns";
 	$me->{dname} = "rdns";
 	$me->refresh;
 }

@@ -20,8 +20,8 @@ extends 'WWW::Hetzner::API';
 
 sub init {
 	my ($me) = @_;
-	my $ip = $me->ip;
-	$me->{call} = "server/${ip}/cancellation";
+	my $sno = $me->get('server_number');
+	$me->{call} = "server/${sno}/cancellation";
 	$me->{dname} = "cancellation";
 	$me->refresh;
 }

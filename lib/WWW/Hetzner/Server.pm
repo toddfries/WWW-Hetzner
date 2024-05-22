@@ -27,18 +27,7 @@ use POSIX qw(strftime);
 
 sub init {
 	my ($me) = @_;
-	my $ip = $me->ip;
 	my $sno = $me->server->{server_number};
-	$me->{setoverrides}->{ip} = sub {
-		my ($me) = @_;
-		my $ip = $me->ip;
-		if (defined($ip)) {
-			my $lip = WWW::Hetzner::IP->new({hetzner => $me->hetzner,
-				ip => $ip,
-			});
-			$me->{v}->{ip} = $lip;
-		}
-	};
 	$me->{setoverrides}->{_trafficbw} = sub {
 		my ($me, $ip) = @_;
 		if (ref($ip) eq "ARRAY" && $#{$ip} > 0) {
@@ -78,21 +67,10 @@ sub init {
 		$me->{_rdns} = $rdns;
 	};
 	$me->{setoverrides}->{_cancel} = sub {
-		my ($me, $ip) = @_;
-		if (ref($ip) eq "ARRAY" && $#{$ip} > 0) {
-		printf "cancel override passed a %s('%s') and a %s('%s')\n",
-			ref($me),$me,ref($ip),$ip; 
-			foreach my $i (@{$ip}) {
-				printf "cancel override IP array member %s\n", $i;
-			}
-			exit(1);
-		}
-		if (ref($ip) eq "ARRAY") {
-			$ip = ${$ip}[0];
-		}
+		my ($me, $sno) = @_;
 		my $cancel = WWW::Hetzner::cancellation->new(
 			hetzner => $me->{hetzner},
-			ip => $ip,
+			server => $me->{server},
 		);
 		$me->{_cancel} = $cancel;
 	};
@@ -106,7 +84,7 @@ sub traffic {
 	my $ip = $me->ip;
 	if (!defined($me->{_trafficbw})) {
 		#printf "%s->traffic: set('traffic',%s)\n", ref($me), $ip;
-		$me->set('_trafficbw',$ip);
+		$me->vset('_trafficbw',$ip);
 	}
 	my $start = strftime("%Y-%m-01", localtime(time()));
 	my $mno = strftime("%m", localtime(time()));
@@ -133,25 +111,25 @@ sub rdns {
 	my $ip = $me->ip;
 	if (!defined($me->{_rdns})) {
 		#printf "%s->rdns: set('rdns',%s)\n", ref($me), $ip;
-		$me->set('_rdns',$ip);
+		$me->vset('_rdns',$ip);
 	}
-	return $me->{_rdns}->get('ptr');
+	return $me->{_rdns}->vget('ptr');
 }
 
 sub cancel {
 	my ($me) = @_;
-	my $ip = $me->ip;
+	my $sno = $me->vget('server_number');
 	if (!defined($me->{_cancel})) {
-		#printf "%s->cancel: set('cancel',%s)\n", ref($me), $ip;
-		$me->set('_cancel',$ip);
+		#printf "%s->cancel: set('cancel',%s)\n", ref($me), $sno;
+		$me->vset('_cancel',$sno);
 	}
 	return $me->{_cancel};
 }
 
 sub firewall {
 	my ($me) = @_;
-	my $ip = $me->ip;
-	my $parsed = $me->{hetzner}->req("firewall/$ip");
+	my $sno = $me->vget('server_number');
+	my $parsed = $me->{hetzner}->req("firewall/$sno");
 	return $parsed;
 }
 

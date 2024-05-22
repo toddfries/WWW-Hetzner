@@ -21,7 +21,6 @@ use Moose::Util::TypeConstraints;
 use WWW::Hetzner;
 
 has 'hetzner' => (is => 'rw', isa => 'WWW::Hetzner', required => 1);
-has 'ip' => (is => 'rw', isa => 'Str', required => 0);
 has 'server' => (is => 'rw', isa => 'Defined', required => 1);
 
 around 'new' => sub {
@@ -39,9 +38,9 @@ sub init {
 	$me->refresh;
 }
 
-sub set {
+sub vset {
 	my ($me, $var, $val) = @_;
-	my $oval = $me->get($var);
+	my $oval = $me->vget($var);
 	if (!defined($oval)) {
 		$oval="<undef>";
 	}
@@ -59,7 +58,7 @@ sub set {
 	$me->{v}->{$var} = $val;
 }
 
-sub get {
+sub vget {
 	my ($me, $var) = @_;
 	return $me->{v}->{$var};
 }
@@ -84,7 +83,7 @@ sub refresh {
 	foreach my $var (keys %{$parsed->{$dn}}) {
 		my $val = $parsed->{$dn}->{$var};
 		#printf "api %s refresh '%s' = '%s'\n", ref($me), $var, $val;
-		$me->set($var, $val);
+		$me->vset($var, $val);
 	}
 }
 

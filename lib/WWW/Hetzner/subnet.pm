@@ -22,8 +22,7 @@ use WWW::Hetzner;
 
 sub init {
 	my ($me) = @_;
-	my $ip = $me->ip;
-	$me->{call} = "subnet/${ip}";
+	$me->{call} = "subnet";
 	$me->{dname} = "subnet";
 	$me->refresh;
 }

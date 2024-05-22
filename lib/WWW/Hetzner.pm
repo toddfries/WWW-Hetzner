@@ -35,22 +35,7 @@ sub setup_ua_creds {
 
 	$me->urlbase('https://robot-ws.your-server.de/');
 
-	if (0) {
-	$me->json_name('sb'); # XXX what does this do?
-
-	my $realm = $me->json_name;
-	print "creds realm: $realm\n";
-	$realm = "";
-
-	$me->{ua}->credentials(
-		"robot-ws.your-server.de:443",
-		$realm,
-		$me->huser,
-		$me->hpass,
-	);
-	} else {
-		$me->{ua}->default_headers->authorization_basic($me->huser, $me->hpass);
-	}
+	$me->{ua}->default_headers->authorization_basic($me->huser, $me->hpass);
 }
 
 sub parse_json {
